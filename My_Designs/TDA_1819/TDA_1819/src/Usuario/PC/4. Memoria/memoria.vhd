@@ -138,8 +138,8 @@ begin
 			EnableDataMemToCpu <= '0';
 		elsif (DataCtrlBusMem = WRITE_MEMORY) then 
 			for i in 0 to accessSize-1 loop
-				for j in 0 to Data_Memory(intAddress)'LENGTH-1 loop
-					Memory(intAddress)(j) <= DataDataBusInMem(iDataBus);  --linea de error					
+				for j in 0 to Memory(intAddress)'LENGTH-1 loop
+					Memory(intAddress)(j) <= DataDataBusInMem(iDataBus); 					
 					iDataBus := iDataBus + 1;
 				end loop;
 				intAddress := intAddress + 1;
@@ -185,9 +185,9 @@ begin
 			EnableInstMemToCpu <= '0'; 
 		elsif (InstCtrlBusMem = WRITE_MEMORY) then
 			for i in 0 to accessSize-1 loop
-				for j in 0 to Data_Memory(intAddress)'LENGTH-1 loop
-					--Inst_Memory(intAddress)(j) <= InstDataBusInMem(iDataBus);
+				for j in 0 to Inst_Memory(intAddress)'LENGTH-1 loop
 					Memory(intAddress)(j) <= InstDataBusInMem(iDataBus);
+					--Memory(intAddress)(j) <= InstDataBusInMem(iDataBus);
 					iDataBus := iDataBus + 1;
 				end loop;
 				intAddress := intAddress + 1;
@@ -212,7 +212,7 @@ begin
 			accessSize := to_integer(unsigned(DataSizeBusMem));
 			iDataBus := 0;
 			for i in 0 to accessSize-1 loop
-				for j in 0 to Data_Memory(intAddress)'LENGTH-1 loop
+				for j in 0 to Memory(intAddress)'LENGTH-1 loop
 					Memory(intAddress)(j) <= DataDataBusInMem(iDataBus);
 					iDataBus := iDataBus + 1;
 				end loop;
@@ -223,7 +223,7 @@ begin
 			accessSize := to_integer(unsigned(InstSizeBusMem));
 			iDataBus := 0;
 			for i in 0 to accessSize-1 loop
-				for j in 0 to Data_Memory(intAddress)'LENGTH-1 loop	   
+				for j in 0 to Memory(intAddress)'LENGTH-1 loop	   
 					Memory(intAddress)(j) <= InstDataBusInMem(iDataBus);
 					iDataBus := iDataBus + 1;
 				end loop;

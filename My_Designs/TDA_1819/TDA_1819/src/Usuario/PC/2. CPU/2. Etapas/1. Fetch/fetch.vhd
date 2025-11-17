@@ -157,7 +157,12 @@ begin
 		else
 			InstSize := to_integer(unsigned(InstDataBusInCpu(7 downto 0)));
 		end if;
-		SizeBus := InstSize - 1;
+		SizeBus := InstSize - 1; 
+		------ CORREGIDO: Evitar SizeBus negativo en primera fetch
+		if (SizeBus < 0) then
+		    SizeBus := 0;
+		end if;	  
+		------ 
 		SizeDataID := InstSize - 2;	 
 		if ((SizeBus > 0) or (StallBrEX = '0')) then
 			if (SizeBus <= 4) then
@@ -165,7 +170,7 @@ begin
 					WAIT UNTIL rising_edge(EnableIF);
 				end if;
 				InstAddrBusCpu <= std_logic_vector(to_unsigned(Local_IP+1, InstAddrBusCpu'length));
-				InstSizeBusCpu <= std_logic_vector(to_unsigned(SizeBus, InstSizeBusCpu'length));
+				InstSizeBusCpu <= std_logic_vector(to_unsigned(SizeBus, InstSizeBusCpu'length)); -- linea de error
 				InstCtrlBusCpu <= READ_MEMORY;
 				EnableCpuToInstMem <= '1';
 				WAIT FOR 1 ns;

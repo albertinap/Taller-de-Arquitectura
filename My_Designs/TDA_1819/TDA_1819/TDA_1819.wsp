@@ -121,7 +121,7 @@ Status=Compiled
 FileTimeHigh=31217261
 [COMPILESTATUS|.\src\Packages\const_ensamblador.vhd]
 FileTimeLow=2723322117
-Status=Modified
+Status=Compiled
 FileTimeHigh=31217515
 [COMPILESTATUS|.\src\Packages\const_flags.vhd]
 FileTimeLow=3818261829
@@ -141,7 +141,7 @@ Status=Compiled
 FileTimeHigh=30734898
 [COMPILESTATUS|.\src\Packages\func_ensamblador.vhd]
 FileTimeLow=2723702737
-Status=Modified
+Status=Compiled
 FileTimeHigh=31217515
 [COMPILESTATUS|.\src\Packages\repert_cpu.vhd]
 FileTimeLow=3027719518
@@ -165,7 +165,7 @@ Status=Compiled
 FileTimeHigh=31217261
 [COMPILESTATUS|.\src\Usuario\PC\1. Ensamblador\ensamblador.vhd]
 FileTimeLow=2722940716
-Status=Modified
+Status=Compiled
 FileTimeHigh=31217515
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\1. UI\1. Máquina de Estados\states_machine.vhd]
 FileTimeLow=1237525607
@@ -180,12 +180,12 @@ FileTimeLow=1158267763
 Status=Compiled
 FileTimeHigh=30763919
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\2. Etapas\1. Fetch\fetch.vhd]
-FileTimeLow=2037252470
+FileTimeLow=3633151830
 Status=Compiled
-FileTimeHigh=30772754
+FileTimeHigh=31217517
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\2. Etapas\2. Decode\decode.vhd]
 FileTimeLow=2722535993
-Status=Modified
+Status=Compiled
 FileTimeHigh=31217515
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\2. Etapas\3. Execute\1. ALU\execute_alu.vhd]
 FileTimeLow=1929215414
@@ -237,7 +237,7 @@ Status=Compiled
 FileTimeHigh=30763919
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\7. Registros\registros.vhd]
 FileTimeLow=2785376080
-Status=Modified
+Status=Compiled
 FileTimeHigh=31217515
 [COMPILESTATUS|.\src\Usuario\PC\2. CPU\cpu.vhd]
 FileTimeLow=1015460495
@@ -248,9 +248,9 @@ FileTimeLow=3293846830
 Status=Compiled
 FileTimeHigh=30763919
 [COMPILESTATUS|.\src\Usuario\PC\4. Memoria\memoria.vhd]
-FileTimeLow=2784770090
-Status=Modified
-FileTimeHigh=31217515
+FileTimeLow=4046561145
+Status=Compiled
+FileTimeHigh=31217516
 [COMPILESTATUS|.\src\Usuario\PC\pc.vhd]
 FileTimeLow=344410555
 Status=Compiled
