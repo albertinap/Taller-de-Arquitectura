@@ -89,6 +89,8 @@ Selected=
 [Files]
 /prueba.asdb=-1
 /prueba.awc=-1
+/funciona.asdb=-1
+/funciona.awc=-1
 Packages/const_reloj.vhd=-1
 Packages/tipos_cpu.vhd=-1
 Packages/tipos_memoria.vhd=-1
@@ -130,6 +132,8 @@ Usuario\PC\4. Memoria/memoria.vhd=-1
 [Files.Data]
 .\src\prueba.asdb=Accelerated Waveform File
 .\src\prueba.awc=Accelerated Waveform Configuration
+.\src\funciona.asdb=Accelerated Waveform File
+.\src\funciona.awc=Accelerated Waveform Configuration
 .\src\Packages\const_reloj.vhd=VHDL Source Code
 .\src\Packages\tipos_cpu.vhd=VHDL Source Code
 .\src\Packages\tipos_memoria.vhd=VHDL Source Code

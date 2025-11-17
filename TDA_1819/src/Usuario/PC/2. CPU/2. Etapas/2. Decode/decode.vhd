@@ -91,8 +91,11 @@ architecture decode_architecture of decode is
 	SIGNAL IFtoIDAnt:	decode_record;
 	SIGNAL IFtoIDLocal:	decode_record; 
 	SIGNAL CodOp:		std_logic_vector(7 downto 0);
-	SIGNAL StallBrID:	std_logic;
-
+	SIGNAL StallBrID:	std_logic; 
+	
+	--mias
+	signal fuente_val : std_logic_vector(31 downto 0);
+	signal sp_val : std_logic_vector(31 downto 0);
 	
 begin	
 	
@@ -406,12 +409,18 @@ begin
 					IDtoMA.address <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length));
 				end if;
 			-------AGREGO LOS CASOS DE PUSHH Y POPH
-			WHEN PUSHH =>  				
-			    rfAux := to_integer(unsigned(IFtoIDLocal.package1(15 downto 8))); -- rf, convierto a entero para indexar
+			WHEN PUSHH =>  			  			    
+
+			   	-- Configurar memoria 
+			    IDtoMA.mode <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));    -- le indico a MA acceso a memoria de datos
+			    IDtoMA.write <= '1';													      -- habilito escritura
+			    IDtoMA.read <= '0';
+			    IDtoMA.datasize <= std_logic_vector(to_unsigned(2, IDtoMA.datasize'length));  -- tamaño de 2 bytes
+			    IDtoMA.source <= std_logic_vector(to_unsigned(MEM_ID, IDtoMA.source'length)); -- dato viene de la etapa Decode
 			
-			    -- Leer rf (32 bits)
-			    IdRegID <= std_logic_vector(to_unsigned(rfAux, IdRegID'length)); -- leo registro del banco de regs
-			    SizeRegID <= std_logic_vector(to_unsigned(4, SizeRegID'length)); -- leo 32 bits 
+			    rfAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0))); -- este es el numero de registro desde donde pusheo			    
+			    IdRegID <= std_logic_vector(to_unsigned(rfAux, IdRegID'length)); -- leo registro del banco de regs y lo guardo en IdRegID
+			    SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length)); -- leo 16 bits 
 			    EnableRegID <= '1';												 -- activo lectura
 			    WAIT FOR 1 ns;													 -- simulo tiempo de acceso al registro
 			    EnableRegID <= '0';												 -- deshabilito
@@ -420,25 +429,23 @@ begin
 			    -- Guardar 16 LSB para escribir
 			    IDtoMA.data.decode(15 downto 0) <= DataRegOutID(15 downto 0);	 -- quiero los 16 menos significativos
 			    IDtoMA.data.decode(31 downto 16) <= (others => '0');			 -- relleno el resto para la etapa de M.A.
-			
-			    -- Configurar escritura en [SP]
-			    IDtoMA.mode <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));    -- acceso a memoria de datos
-			    IDtoMA.write <= '1';													      -- habilito escritura
-			    IDtoMA.read <= '0';
-			    IDtoMA.datasize <= std_logic_vector(to_unsigned(2, IDtoMA.datasize'length));  -- tamaño de 2 bytes
-			    IDtoMA.source <= std_logic_vector(to_unsigned(MEM_ID, IDtoMA.source'length)); -- dato viene de la etapa Decode
-			
+						    
 			    -- Leer SP (ID_SP = 37)
-			    IdRegID <= std_logic_vector(to_unsigned(37, IdRegID'length));
-			    SizeRegID <= std_logic_vector(to_unsigned(4, SizeRegID'length));
+			    IdRegID <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length)); -- leo el reg SP y lo guardo en IdRegID
+			    SizeRegID <= std_logic_vector(to_unsigned(2, SizeRegID'length));
 			    EnableRegID <= '1';
 			    WAIT FOR 1 ns;
 			    EnableRegID <= '0';
 			    WAIT FOR 1 ns;
-			
-			    IDtoMA.address <= DataRegOutID(15 downto 0); -- SP actual 
-			
-			    -- SP se decrementa con: dadd SP, SP, -2 (en Assembly)
+				addrAux := to_integer(unsigned(DataRegOutID(15 downto 0))) - 2;	 -- guardo el valor leído en SP en addrAux
+			    IDtoMA.address <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length)); -- me guardo lo anterior en la direccion en la que voy a escribir
+				
+				--Actualizo SP (SP-2)
+				IDtoWB.datasize <= std_logic_vector(to_unsigned(2, IDtoWB.datasize'length));
+			    IDtoWB.source <= std_logic_vector(to_unsigned(WB_ID, IDtoWB.source'length)); -- actualizo desde ID a WB
+			    IDtoWB.mode <= std_logic_vector(to_unsigned(ID_SP + 1, IDtoWB.mode'length));
+			    IDtoWB.data.decode(15 downto 0) <= std_logic_vector(to_unsigned(addrAux, 16)); -- coloco en bus de datos para el writeback
+				
 			
 			WHEN POPH =>
 			    rdAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0))) + 1;

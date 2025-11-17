@@ -21,20 +21,17 @@
         <signal>/usuario/UUT/UUT2/UUT7/SP</signal>
         <signal>/usuario/UUT/UUT2/UUT7/R1</signal>
         <signal>/usuario/UUT/UUT2/UUT7/R2</signal>
-        <signal>/usuario/UUT/UUT2/UUT7/R3</signal>
-        <signal>/usuario/UUT/UUT2/UUT7/R4</signal>
         <signal>/usuario/UUT/UUT2/UUT2/UUT2/DataRegOutID</signal>
         <signal>/usuario/UUT/UUT2/UUT2/UUT2/CodOp</signal>
         <signal>/usuario/UUT/UUT2/UUT2/UUT2/IDtoMA.address</signal>
         <signal>/usuario/UUT/UUT2/UUT2/UUT2/IDtoMA.data.decode</signal>
         <signal>/usuario/UUT/UUT3/DataCtrlBusMem</signal>
         <signal>/usuario/UUT/UUT3/EnableInDataMem</signal>
-        <signal>/usuario/UUT/UUT4/Memory</signal>
         </signallist>
     </signallists>
     <timebases>
         <timebase id="0">
-            <time start_time="0" end_time="573" />
+            <time start_time="86" end_time="377" />
         </timebase>
     </timebases>
     <prefbases>
@@ -47,7 +44,7 @@
     </bookmarkbases>
     <cursorbases>
         <cursors id="0">
-            <cursor value="124" label="Cursor 1" locked="0" />
+            <cursor value="199" label="Cursor 1" locked="0" />
         </cursors>
     </cursorbases>
     <measurementbases>
