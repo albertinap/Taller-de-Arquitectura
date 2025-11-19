@@ -842,6 +842,7 @@ begin
     VARIABLE addrReg: INTEGER; 
 	VARIABLE found_variable: BOOLEAN := false;   -- agregada
 	VARIABLE parsed_immediate: BOOLEAN := false; -- agregada
+	VARIABLE negative_flag : BOOLEAN := false;   -- agregada
 
 	BEGIN
 	    for j in INSTTD_NAME'RANGE loop
@@ -924,77 +925,96 @@ begin
 	            -- Ahora aceptamos: 1) nombre de variable (como antes) O 2) inmediato decimal seguido de (rX), por ejemplo 0(r1) o 123(r2)
 	            found_variable := false;
 	            parsed_immediate := false;
-	
-	            -- primer intento: ver si hay un número inmediato en la posición actual
-	            if (isNumber(cadena(indice))) then
-	                -- parseo inmediato (posible múltiple dígito)
-	                addrInm := 0;
-	                while (isNumber(cadena(indice))) loop
-	                    -- buscar valor numérico del dígito
-	                    for j in DIGITS_DEC'range loop
-	                        if (cadena(indice) = DIGITS_DEC(j)) then
-	                            addrInm := addrInm * 10 + (j-1);
-	                            exit;
-	                        end if;
-	                    end loop;
-	                    indice := indice + 1;
-	                end loop;
-	
-	                -- ahora esperamos '('
-	                if (cadena(indice) /= '(') then
-	                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': formato inmediato inválido, falta '(' después del inmediato"
-	                    severity FAILURE;
-	                end if;
-	                indice := indice + 1;
-	
-	                -- esperar 'r'
-	                if (cadena(indice) /= 'r') then
-	                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': formato inmediato inválido, falta 'r' dentro de paréntesis"
-	                    severity FAILURE;
-	                end if;
-	                indice := indice + 1;
-	
-	                -- parseo registro dentro de los paréntesis (un dígito o dos como en otras partes)
-	                if (not isNumber(cadena(indice))) then
-	                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': registro dentro de paréntesis inválido"
-	                    severity FAILURE;
-	                end if;
-	                -- primer dígito del registro
-	                for j in DIGITS_DEC'range loop
-	                    if (cadena(indice) = DIGITS_DEC(j)) then
-	                        addrReg := j-1;
-	                        exit;
-	                    end if;
-	                end loop;
-	                indice := indice + 1;
-	
-	                -- posible segundo dígito del registro (0..5 en tu convención)
-	                if (cadena(indice) /= ')') then
-	                    if (cadena(indice-1) /= '1') then
-	                        case cadena(indice) is
-	                            when '0' to '5' =>
-	                                for j in DIGITS_DEC'range loop
-	                                    if (cadena(indice) = DIGITS_DEC(j)) then
-	                                        addrReg := 10 + j-1;
-	                                        exit;
-	                                    end if;
-	                                end loop;
-	                                indice := indice + 1;
-	                            when others =>
-	                                report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': registro dentro de paréntesis inválido"
-	                                severity FAILURE;
-	                        end case;
-	                    end if;
-	                end if;
-	
-	                if (cadena(indice) /= ')') then
-	                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': falta ')' al final del operando inmediato"
-	                    severity FAILURE;
-	                end if;
-	                indice := indice + 1;
-	                parsed_immediate := true;
-	            else
-	                -- no es inmediato; intentar emparejar con nombre de variable (como antes)
+				
+				-------
+				-- primer intento: ver si hay un número inmediato en la posición actual (ahora con signo)
+				if ( (cadena(indice) = '-') or isNumber(cadena(indice)) ) then
+				    -- parseo inmediato (posible signo y múltiple dígito)
+				    negative_flag := false;
+				    addrInm := 0;
+				
+				    -- signo opcional
+				    if (cadena(indice) = '-') then
+				        negative_flag := true;
+				        indice := indice + 1;
+				        if (not isNumber(cadena(indice))) then
+				            report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': inmediato inválido después del signo '-'"
+				            severity FAILURE;
+				        end if;
+				    end if;
+				
+				    -- parseo de dígitos
+				    while (isNumber(cadena(indice))) loop
+				        -- buscar valor numérico del dígito
+				        for j in DIGITS_DEC'range loop
+				            if (cadena(indice) = DIGITS_DEC(j)) then
+				                addrInm := addrInm * 10 + (j-1);
+				                exit;
+				            end if;
+				        end loop;
+				        indice := indice + 1;
+				    end loop;
+				
+				    -- aplicar signo si había '-'
+				    if (negative_flag) then
+				        addrInm := - addrInm;
+				    end if;
+				
+				    -- ahora esperamos '('
+				    if (cadena(indice) /= '(') then
+				        report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': formato inmediato inválido, falta '(' después del inmediato"
+				        severity FAILURE;
+				    end if;
+				    indice := indice + 1;
+				
+				    -- esperar 'r'
+				    if (cadena(indice) /= 'r') then
+				        report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': formato inmediato inválido, falta 'r' dentro de paréntesis"
+				        severity FAILURE;
+				    end if;
+				    indice := indice + 1;
+				
+				    -- parseo registro dentro de los paréntesis (un dígito o dos como en otras partes)
+				    if (not isNumber(cadena(indice))) then
+				        report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': registro dentro de paréntesis inválido"
+				        severity FAILURE;
+				    end if;
+				    -- primer dígito del registro
+				    for j in DIGITS_DEC'range loop
+				        if (cadena(indice) = DIGITS_DEC(j)) then
+				            addrReg := j-1;
+				            exit;
+				        end if;
+				    end loop;
+				    indice := indice + 1;
+				
+				    -- posible segundo dígito del registro (0..5 en tu convención)
+				    if (cadena(indice) /= ')') then
+				        if (cadena(indice-1) /= '1') then
+				            case cadena(indice) is
+				                when '0' to '5' =>
+				                    for j in DIGITS_DEC'range loop
+				                        if (cadena(indice) = DIGITS_DEC(j)) then
+				                            addrReg := 10 + j-1;
+				                            exit;
+				                        end if;
+				                    end loop;
+				                    indice := indice + 1;
+				                when others =>
+				                    report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': registro dentro de paréntesis inválido"
+				                    severity FAILURE;
+				            end case;
+				        end if;
+				    end if;
+				
+				    if (cadena(indice) /= ')') then
+				        report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': falta ')' al final del operando inmediato"
+				        severity FAILURE;
+				    end if;
+				    indice := indice + 1;
+				    parsed_immediate := true;
+				else
+					 -- no es inmediato; intentar emparejar con nombre de variable 
 	                for j in 1 to cant_variables loop
 	                    match := true;
 	                    i_aux := indice;
@@ -1011,8 +1031,10 @@ begin
 	                        indice := indice + variables(j).namelength;
 	                        exit;
 	                    end if;
-	                end loop;
-	            end if;
+	                end loop;				    
+				end if;
+				-------
+	            
 	
 	            if (not parsed_immediate and not found_variable) then
 	                report "Error en la línea " & integer'image(num_linea) & " del programa '" & trim(nombre) & "': el segundo operando no hace referencia al nombre de ninguna variable válida declarada ni a un inmediato válido"
@@ -1093,7 +1115,7 @@ begin
 	            EnableCompToInstMem <= '0';    
 	            WAIT FOR 1 ns;
 	            InstAddrBusComp <= std_logic_vector(to_unsigned(addr_linea+3, InstAddrBusComp'length));
-	            InstDataBusOutComp <= std_logic_vector(to_unsigned(addrInm, InstDataBusOutComp'length));
+	            InstDataBusOutComp <= std_logic_vector(to_signed(addrInm, InstDataBusOutComp'length)); --pasa de sin signo a con signo (el inmediato puede ser negativo)
 	            InstSizeBusComp <= std_logic_vector(to_unsigned(2, InstSizeBusComp'length));
 	            InstCtrlBusComp <= WRITE_MEMORY;
 	            EnableCompToInstMem <= '1';

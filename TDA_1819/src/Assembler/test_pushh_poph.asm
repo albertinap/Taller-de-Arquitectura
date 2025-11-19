@@ -7,7 +7,7 @@ A:		.word	11
 		daddi r2, r0, 4099
 		nop
 		nop
-		sh r4, -2(r2)
+		sh r4, 0(r2)
 		daddi r1, r0, 15
 		pushh r2
 		nop

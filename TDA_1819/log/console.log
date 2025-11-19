@@ -973,3 +973,75 @@ run
 # KERNEL: Simulation has finished. There are no more test vectors to simulate.
 endsim
 # VSIM: Simulation has finished.
+asim -t ns -O5 +access +r +m+usuario usuario usuario_architecture
+# ELBREAD: Elaboration process.
+# ELBREAD: Elaboration time 0.0 [s].
+# VSIM: Stack memory: 32MB
+# VSIM: Retval memory: 32MB
+# 
+# KERNEL: Main thread initiated.
+# KERNEL: Kernel process initialization phase.
+# ELAB2: Elaboration final pass...
+# ELAB2: Create instances ...
+# KERNEL: Time resolution set to 1ns.
+# ELAB2: Create instances complete.
+# SLP: Started
+# SLP: Elaboration phase ...
+# SLP: Elaboration phase ... skipped, nothing to simulate in SLP mode : 0.0 [s]
+# SLP: Finished : 0.0 [s]
+# ELAB2: Elaboration final pass complete - time: 0.1 [s].
+# KERNEL: Warning: You are using the Active-HDL Student Edition. The performance of simulation is running at a reduced rate.
+# KERNEL: Warning: Contact Aldec for available upgrade options - sales@aldec.com.
+# KERNEL: Kernel process initialization done.
+# Allocation: Simulator allocated 57066 kB (elbread=427 elab2=56489 kernel=149 sdf=0)
+# KERNEL: ASDB file was created in location C:\Users\alber\Downloads\2_TDA_1819\My_Designs\TDA_1819\TDA_1819\src\wave.asdb
+#  12:21, miércoles, 19 de noviembre de 2025
+#  Simulation has been initialized
+# Waveform file 'untitled.awc' connected to 'C:/Users/alber/Downloads/2_TDA_1819/My_Designs/TDA_1819/TDA_1819/src/wave.asdb'.
+run
+# EXECUTION:: WARNING: El programa 'Assembler/test_pushh_poph.asm' ha sido ensamblado exitosamente
+# EXECUTION:: Time: 141 ns,  Iteration: 1,  Instance: /usuario,  Process: Main.
+# EXECUTION:: NOTE   : WRITE: addr=32766 size=2
+# EXECUTION:: Time: 725 ns,  Iteration: 4,  Instance: /usuario/UUT/UUT4,  Process: DataMemory.
+# EXECUTION:: NOTE   : WRITE: addr=32767 size=2
+# EXECUTION:: Time: 725 ns,  Iteration: 4,  Instance: /usuario/UUT/UUT4,  Process: DataMemory.
+# EXECUTION:: NOTE   : WRITE: addr=32764 size=2
+# EXECUTION:: Time: 875 ns,  Iteration: 4,  Instance: /usuario/UUT/UUT4,  Process: DataMemory.
+# EXECUTION:: NOTE   : WRITE: addr=32765 size=2
+# EXECUTION:: Time: 875 ns,  Iteration: 4,  Instance: /usuario/UUT/UUT4,  Process: DataMemory.
+# EXECUTION:: WARNING: El programa 'Assembler/test_pushh_poph.asm' ha sido ejecutado exitosamente
+# EXECUTION:: Time: 1200 ns,  Iteration: 1,  Instance: /usuario,  Process: Main.
+# KERNEL: Simulation has finished. There are no more test vectors to simulate.
+endsim
+# VSIM: Simulation has finished.
+asim -t ns -O5 +access +r +m+usuario usuario usuario_architecture
+# ELBREAD: Elaboration process.
+# ELBREAD: Elaboration time 0.0 [s].
+# VSIM: Stack memory: 32MB
+# VSIM: Retval memory: 32MB
+# 
+# KERNEL: Main thread initiated.
+# KERNEL: Kernel process initialization phase.
+# ELAB2: Elaboration final pass...
+# ELAB2: Create instances ...
+# KERNEL: Time resolution set to 1ns.
+# ELAB2: Create instances complete.
+# SLP: Started
+# SLP: Elaboration phase ...
+# SLP: Elaboration phase ... skipped, nothing to simulate in SLP mode : 0.0 [s]
+# SLP: Finished : 0.0 [s]
+# ELAB2: Elaboration final pass complete - time: 0.1 [s].
+# KERNEL: Warning: You are using the Active-HDL Student Edition. The performance of simulation is running at a reduced rate.
+# KERNEL: Warning: Contact Aldec for available upgrade options - sales@aldec.com.
+# KERNEL: Kernel process initialization done.
+# Allocation: Simulator allocated 57066 kB (elbread=427 elab2=56489 kernel=149 sdf=0)
+# KERNEL: ASDB file was created in location C:\Users\alber\Downloads\2_TDA_1819\My_Designs\TDA_1819\TDA_1819\src\wave.asdb
+#  12:41, miércoles, 19 de noviembre de 2025
+#  Simulation has been initialized
+# Waveform file 'untitled.awc' connected to 'C:/Users/alber/Downloads/2_TDA_1819/My_Designs/TDA_1819/TDA_1819/src/wave.asdb'.
+run
+# EXECUTION:: FAILURE: Error en la línea 10 del programa 'Assembler/test_pushh_poph.asm': el segundo operando no hace referencia al nombre de ninguna variable válida declarada ni a un inmediato válido
+# EXECUTION:: Time: 51 ns,  Iteration: 0,  Instance: /usuario/UUT/UUT1,  Process: Main.
+# KERNEL: Stopped at time 51 ns + 0.
+endsim
+# VSIM: Simulation has finished.
