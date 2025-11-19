@@ -84,7 +84,8 @@ PACKAGE const_cpu is
 												-- etapa Execute
 	CONSTANT WB_MEM:		INTEGER := 3;		-- El valor a almacenar en el banco de registros de uso general se originó en la 
 												-- etapa Memory Access
-	
+	CONSTANT WB_IDyMEM:		INTEGER := 4;		-- Los 2 valores a almacenar en el banco de registros de uso general se originaron,
+												-- en la etapa de Decode y el otro en Memory Access
 											
 END const_cpu;
 

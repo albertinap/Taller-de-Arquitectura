@@ -39,6 +39,7 @@ library TDA_1819;
 use TDA_1819.const_buses.all;
 use TDA_1819.const_cpu.all; 
 use TDA_1819.tipos_cpu.all; 
+use TDA_1819.const_registros.all;
 
 
 LIBRARY IEEE;
@@ -46,8 +47,6 @@ LIBRARY IEEE;
 USE std.textio.all;
 use ieee.NUMERIC_STD.all;
 USE IEEE.std_logic_1164.all; 
-
-
 
 
 entity writeback is
@@ -68,6 +67,7 @@ entity writeback is
 		StallSTR			: in  std_logic;
 		RecInWB				: in  writeback_record;
 		EnableWB			: in  std_logic);
+
 
 end writeback;
 
@@ -220,38 +220,69 @@ begin
 			Mode := WB_NULL;
 			IdRecWAW <= RecInWB.id;
 		end if;
+		
 		WAIT UNTIL falling_edge(EnableWB);
-		if (Mode /= WB_NULL) then												 
+		if (Mode /= WB_NULL) then
 			Source := to_integer(unsigned(RecInWBAct.source));
 			SizeBits := to_integer(unsigned(RecInWBAct.datasize))*8;
 			IdRegWB <= std_logic_vector(to_unsigned(Mode-1, IdRegWB'length));	 
 			SizeRegWB <= RecInWBAct.datasize;
 			DataRegInWB <= "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
-			--for i in DataRegInWB'length-1 downto SizeBits loop
-				--DataRegInWB(i) <= '0';
-			--end loop;
-			CASE Source IS
-				WHEN WB_ID =>
-					for i in SizeBits-1 downto 0 loop
-						DataRegInWB(i) <= RecInWBAct.data.decode(i);
-					end loop;
-				WHEN WB_EX =>
-					for i in SizeBits-1 downto 0 loop
-						DataRegInWB(i) <= RecInWBAct.data.execute(i);
-					end loop;
-				WHEN WB_MEM =>
-					for i in SizeBits-1 downto 0 loop
-						DataRegInWB(i) <= RecInWBAct.data.memaccess(i);
-					end loop;
-				WHEN OTHERS =>
-					report "Error: la configuración de la etapa de almacenamiento en registro no es válida"
-					severity FAILURE;
-			END CASE;
-			EnableRegWB <= '1';
-			WAIT FOR 1 ns;
-			EnableRegWB <= '0';
-			WAIT FOR 1 ns;
-		end if;
+			
+			-- Escritura especial para POPH							
+			if (Source = WB_IDyMEM) then 
+				-- 1) Escribir el valor poppeado (dato de MEM) en el registro destino 
+				IdRegWB <= std_logic_vector(to_unsigned(to_integer(unsigned(RecInWBAct.mode)) - 1, IdRegWB'length)); 
+				SizeRegWB <= RecInWBAct.datasize; 
+				DataRegInWB <= RecInWBAct.data.memaccess; 
+				
+				EnableRegWB <= '1'; 
+				wait for 1 ns; 
+				EnableRegWB <= '0'; 
+				wait for 1 ns; 
+				
+				-- 2) Escritura del SP (dato de ID) 
+				IdRegWB <= std_logic_vector(to_unsigned(ID_SP, IdRegWB'length)); 
+				SizeRegWB <= std_logic_vector(to_unsigned(4, SizeRegWB'length)); -- 4 bytes del SP
+				DataRegInWB <= RecInWBAct.data.decode;
+				--DataRegInWB <= (31 downto 16 => '0') & RecInWBAct.data.decode(15 downto 0); -- fuerzo los más significantes a cero, no quiero 'ZZZZ'
+				
+				EnableRegWB <= '1'; 
+				wait for 1 ns; 
+				EnableRegWB <= '0'; 
+				wait for 1 ns;
+			
+			else									
+				
+				--for i in DataRegInWB'length-1 downto SizeBits loop
+					--DataRegInWB(i) <= '0';
+				--end loop;	  
+	
+				CASE Source IS
+					WHEN WB_ID =>
+						for i in SizeBits-1 downto 0 loop
+							DataRegInWB(i) <= RecInWBAct.data.decode(i);
+						end loop;
+					WHEN WB_EX =>
+						for i in SizeBits-1 downto 0 loop
+							DataRegInWB(i) <= RecInWBAct.data.execute(i);
+						end loop;
+					WHEN WB_MEM =>
+						for i in SizeBits-1 downto 0 loop
+							DataRegInWB(i) <= RecInWBAct.data.memaccess(i);						
+						end loop;												
+					WHEN OTHERS =>
+						report "Error: la configuración de la etapa de almacenamiento en registro no es válida"
+						severity FAILURE;
+				END CASE;  	  
+																					
+				EnableRegWB <= '1';
+				WAIT FOR 1 ns;
+				EnableRegWB <= '0';
+				WAIT FOR 1 ns;
+			end if;
+		end if;	  
+		
 		--IdRegDecWrPend <= RecInWB.mode;
 		--EnableDecWrPend <= '1';
 		--WAIT FOR 1 ns;
@@ -260,8 +291,3 @@ begin
 	
 	
 end WRITEBACK_ARCHITECTURE;
-
-
-
-
-

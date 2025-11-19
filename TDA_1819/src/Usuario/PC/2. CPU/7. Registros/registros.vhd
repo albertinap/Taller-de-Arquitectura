@@ -804,8 +804,3 @@ begin
 		
 	
 end REGISTROS_ARCHITECTURE;
-
-
-
-
-

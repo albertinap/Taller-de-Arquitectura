@@ -436,42 +436,51 @@ begin
 			    EnableRegID <= '1';
 			    WAIT FOR 1 ns;
 			    EnableRegID <= '0';
-			    WAIT FOR 1 ns;
+			    WAIT FOR 1 ns;		
+								
 				addrAux := to_integer(unsigned(DataRegOutID(15 downto 0))) - 2;	 -- guardo el valor leído en SP en addrAux
 			    IDtoMA.address <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length)); -- me guardo lo anterior en la direccion en la que voy a escribir
 				
 				--Actualizo SP (SP-2)
 				IDtoWB.datasize <= std_logic_vector(to_unsigned(2, IDtoWB.datasize'length));
-			    IDtoWB.source <= std_logic_vector(to_unsigned(WB_ID, IDtoWB.source'length)); -- actualizo desde ID a WB
+			    IDtoWB.source <= std_logic_vector(to_unsigned(WB_ID, IDtoWB.source'length));   -- actualizo desde ID a WB
 			    IDtoWB.mode <= std_logic_vector(to_unsigned(ID_SP + 1, IDtoWB.mode'length));
 			    IDtoWB.data.decode(15 downto 0) <= std_logic_vector(to_unsigned(addrAux, 16)); -- coloco en bus de datos para el writeback
 				
 			
-			WHEN POPH =>
-			    rdAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0))) + 1;
-			
-			    -- Leer desde [SP]
-			    IDtoMA.mode <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));
-			    IDtoMA.read <= '1';
-			    IDtoMA.write <= '0';
-			    IDtoMA.datasize <= std_logic_vector(to_unsigned(2, IDtoMA.datasize'length));
-			
-			    -- Leer SP
-			    IdRegID <= std_logic_vector(to_unsigned(37, IdRegID'length));
-			    SizeRegID <= std_logic_vector(to_unsigned(4, SizeRegID'length));
-			    EnableRegID <= '1';
+			WHEN POPH =>			    
+						
+			    IdRegID     <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length)); -- SP
+			    SizeRegID   <= std_logic_vector(to_unsigned(4, SizeRegID'length));   -- tamaño de registro SP de 4 bytes
+			    
+				EnableRegID <= '1';
 			    WAIT FOR 1 ns;
 			    EnableRegID <= '0';
-			    WAIT FOR 1 ns;
+			    WAIT FOR 1 ns;		
+				
+				-- DataRegOutID ahora contiene SP_actual, se lo paso a addrAux
+			    addrAux := to_integer(unsigned(DataRegOutID(15 downto 0)));	
+			    
+			    -- configuro acceso a memoria para leer lo que tiene SP (rd)
+			    IDtoMA.mode     <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));
+			    IDtoMA.read     <= '1';
+			    IDtoMA.write    <= '0';
+			    IDtoMA.datasize <= std_logic_vector(to_unsigned(2, IDtoMA.datasize'length));      -- 2 bytes
+			    IDtoMA.address  <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length)); -- leo la dirección que guardé en addrAux (SP_actual)
+						    
+			    -- registro destino, rd
+			    rdAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0))) + 1;
 			
-			    IDtoMA.address <= DataRegOutID(15 downto 0); -- Dirección de lectura = valor actual de SP
+			    -- configuro Writeback para escribir el valor poppeado desde MEM en rd
+			    IDtoWB.mode     <= std_logic_vector(to_unsigned(rdAux, IDtoWB.mode'length));
+			    IDtoWB.datasize <= std_logic_vector(to_unsigned(2, IDtoWB.datasize'length));						    			    
+			    IDtoWB.source   <= std_logic_vector(to_unsigned(WB_IDyMEM, IDtoWB.source'length));-- hago writeback de datos de dos sources, uso WB_MEMyEX			    
+						    
+			    -- hago (sp+2) en el campo decode del wb, durante WB se escribe en sp			    
+			    --IDtoWB.data.decode(15 downto 0) <= std_logic_vector(to_unsigned(addrAux + 2, 16));
+			    --IDtoWB.data.decode(31 downto 16) <= (others => '0');	    					  --el resto a cero		
+				IDtoWB.data.decode <= std_logic_vector(to_unsigned(addrAux + 2, 32));  -- 32 bits, zero-extended
 			
-			    -- Cargar en rd (extensión de signo en etapa writeback)
-			    IDtoWB.mode <= std_logic_vector(to_unsigned(rdAux, IDtoWB.mode'length));
-			    IDtoWB.datasize <= std_logic_vector(to_unsigned(2, IDtoWB.datasize'length));
-			    IDtoWB.source <= std_logic_vector(to_unsigned(WB_MEM, IDtoWB.source'length)); -- el dato viene de memoria
-			
-			    -- SP se incrementa con: dadd SP, SP, 2
 			WHEN LW =>
 				IDtoMA.mode <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));
 				IDtoMA.read <= '1';

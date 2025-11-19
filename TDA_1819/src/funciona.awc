@@ -21,17 +21,17 @@
         <signal>/usuario/UUT/UUT2/UUT2/UUT2/EnableRegID</signal>
         <signal>/usuario/UUT/UUT2/UUT2/UUT2/IdRegID</signal>
         <signal>/usuario/UUT/UUT2/UUT2/UUT3/StallSTR</signal>
-        <signal>/usuario/UUT/UUT2/UUT5/EnableMA</signal>
         <signal>/usuario/UUT/UUT2/UUT5/StopMA</signal>
         <signal>/usuario/UUT/UUT2/UUT2/UUT2/IDtoMA</signal>
         <signal>/usuario/UUT/UUT2/UUT2/UUT2/IDtoWB</signal>
         <signal>/usuario/UUT/UUT2/UUT6/CLK</signal>
         <signal>/usuario/UUT/UUT4/Stack_Memory</signal>
+        <signal>/usuario/UUT/UUT2/UUT5/EnableMA</signal>
         </signallist>
     </signallists>
     <timebases>
         <timebase id="0">
-            <time start_time="0" end_time="618" />
+            <time start_time="0" end_time="590" />
         </timebase>
     </timebases>
     <prefbases>
