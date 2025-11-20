@@ -161,6 +161,7 @@ architecture RAW_WAW_DETECTOR_ARCHITECTURE of raw_waw_detector is
 	SIGNAL F13_IdWrPending:		idwrpending_records(1 to CANT_MAX_INST_WRPEND);
 	SIGNAL F14_IdWrPending:		idwrpending_records(1 to CANT_MAX_INST_WRPEND);
 	SIGNAL F15_IdWrPending:		idwrpending_records(1 to CANT_MAX_INST_WRPEND);
+	SIGNAL SP_WrPending:		UNSIGNED(3 downto 0) := B"0000";
 	SIGNAL R0_WrPending:		UNSIGNED(3 downto 0) := B"0000";
 	SIGNAL R1_WrPending:		UNSIGNED(3 downto 0) := B"0000";
 	SIGNAL R2_WrPending:		UNSIGNED(3 downto 0) := B"0000";
@@ -215,6 +216,11 @@ begin
 	
 	BEGIN
 		CASE to_integer(unsigned(IdRegID)) IS
+			WHEN ID_SP =>
+				if (SP_WrPending > 0) then
+					StallRAW <= '1';
+					IdRegRAW <= IdRegID;
+				end if;
 			WHEN ID_R0 =>
 				if (R0_WrPending > 0) then
 					StallRAW <= '1';
@@ -388,8 +394,8 @@ begin
 				end if;
 			WHEN ID_BP =>
 				NULL;
-			WHEN ID_SP =>
-				NULL;
+			--WHEN ID_SP =>
+				--NULL;
 			WHEN ID_RA =>
 				NULL;
 			WHEN OTHERS =>
@@ -404,6 +410,8 @@ begin
 	BEGIN
 		if (RegIncWrPend /= WB_NULL) then 
 			CASE (RegIncWrPend-1) IS
+				WHEN ID_SP =>
+					SP_WrPending <= SP_WrPending + 1;
 				WHEN ID_R0 =>
 					R0_WrPending <= R0_WrPending + 1;
 				WHEN ID_R1 =>
@@ -494,8 +502,8 @@ begin
 					NULL;
 				WHEN ID_BP =>
 					NULL;
-				WHEN ID_SP =>
-					NULL;
+				--WHEN ID_SP =>
+					--NULL;
 				WHEN ID_RA =>
 					NULL;
 				WHEN OTHERS =>
@@ -704,6 +712,11 @@ begin
 	BEGIN
 		if (RegDecWrPend /= WB_NULL) then
 			CASE (RegDecWrPend-1) IS
+				WHEN ID_SP =>
+					if ((SP_WrPending = 1) and (StallRAW = '1') and (to_integer(unsigned(IdRegRAW)) = ID_SP)) then
+						StallRAW <= '0';
+					end if;	 
+					SP_WrPending <= SP_WrPending - 1;
 				WHEN ID_R0 =>
 					if ((R0_WrPending = 1) and (StallRAW = '1') and (to_integer(unsigned(IdRegRAW)) = ID_R0)) then
 						StallRAW <= '0';
@@ -1005,8 +1018,8 @@ begin
 					FPFLAGS_WrPending <= FPFLAGS_WrPending - 1;
 				WHEN ID_BP =>
 					NULL;
-				WHEN ID_SP =>
-					NULL;
+				--WHEN ID_SP =>
+					--NULL;
 				WHEN ID_RA =>
 					NULL;
 				WHEN OTHERS =>

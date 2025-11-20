@@ -40,7 +40,7 @@ entity usuario is
 	-- Generic declarations of the tested unit
 	generic (
 		ProgName	: STRING := "test_pushh_poph.asm";
-		Pipelining	: BOOLEAN := true;
+		Pipelining	: BOOLEAN := false; --inhabilito la segmentación del cauce
 		Cores 		: INTEGER := 1);  	
 			
 end usuario;
