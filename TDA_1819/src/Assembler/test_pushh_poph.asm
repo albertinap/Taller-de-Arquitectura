@@ -34,7 +34,8 @@ SUMA_IMPAR:	pushh r3
 		sh r9, 4(SP)
 		poph r4
 		poph r3
-		jmp SEGUIR_3
+		poph r6
+		jmp FIN
 SUMA_PAR:	pushh r4
 		pushh r3
 		lh r8, 0(SP)
@@ -46,6 +47,6 @@ SUMA_PAR:	pushh r4
 		sh r0, 4(SP)
 		poph r3
 		poph r4
-SEGUIR_3:	poph r6		
-		halt
+		poph r6
+FIN:		halt
 		

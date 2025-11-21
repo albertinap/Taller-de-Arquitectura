@@ -164,11 +164,6 @@ begin
 					end loop;
 				elsif (intAddress >= STACK_BEGIN and intAddress <= MEMORY_END) then	  
 					-- escribir en Stack_Memory	 
-					--debug
-					report "WRITE: addr=" & integer'image(intAddress) &
-				       " size=" & integer'image(accessSize)
-				       severity note;
-					--fin debug
 					for j in 0 to Stack_Memory(intAddress)'LENGTH-1 loop
                     	Stack_Memory(intAddress)(j) <= DataDataBusInMem(iDataBus); --linea de error
                     	iDataBus := iDataBus + 1;

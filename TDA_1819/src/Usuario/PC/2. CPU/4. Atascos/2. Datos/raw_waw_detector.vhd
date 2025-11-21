@@ -407,7 +407,8 @@ begin
 	
 	VARIABLE RegIncWrPend: INTEGER := to_integer(unsigned(IdRegIncWrPend));
 	
-	BEGIN
+	BEGIN		
+		
 		if (RegIncWrPend /= WB_NULL) then 
 			CASE (RegIncWrPend-1) IS
 				WHEN ID_SP =>

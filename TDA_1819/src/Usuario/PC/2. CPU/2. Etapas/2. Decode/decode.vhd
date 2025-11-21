@@ -91,11 +91,7 @@ architecture decode_architecture of decode is
 	SIGNAL IFtoIDAnt:	decode_record;
 	SIGNAL IFtoIDLocal:	decode_record; 
 	SIGNAL CodOp:		std_logic_vector(7 downto 0);
-	SIGNAL StallBrID:	std_logic; 
-	
-	--mias
-	signal fuente_val : std_logic_vector(31 downto 0);
-	signal sp_val : std_logic_vector(31 downto 0);
+	SIGNAL StallBrID:	std_logic; 	
 	
 begin	
 	
@@ -125,17 +121,21 @@ begin
 		IDtoWB.id <= std_logic_vector(to_unsigned(idAux, IDtoWB.mode'length));
 		IDtoWB.datasize <= "ZZZZ";
 		IDtoWB.source <= std_logic_vector(to_unsigned(WB_NULL, IDtoWB.source'length));
-		IDtoWB.data.decode <= "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ";
+		IDtoWB.data.decode <= "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"; 
+				
 	End Initialize;	
 	
 	VARIABLE First:			BOOLEAN := true;
 	--VARIABLE wasRAW:		BOOLEAN := false;
-	VARIABLE updateCodOp:	BOOLEAN := true;
+	VARIABLE updateCodOp:		BOOLEAN := true;
 	VARIABLE rgAux:			INTEGER;
 	VARIABLE rfAux:			INTEGER;
 	VARIABLE rdAux:			INTEGER;
-	VARIABLE addrAux:		INTEGER; 
+	VARIABLE addrAux:			INTEGER; 
 	VARIABLE idAux:			INTEGER := 0;
+	
+	VARIABLE Source:			INTEGER := 0; 
+	
 	
 	BEGIN 
 		if (First) then
@@ -308,7 +308,23 @@ begin
 		WAIT FOR 1 ns;
 		EnableIncWrPend <= '0';
 		EnableIncFPWrPend <= '0';
-		WAIT FOR 1 ns;
+		WAIT FOR 1 ns; 
+		
+		--inicializo a mano la dependencia de datos   				
+		Source:= to_integer(unsigned(IDtoWB.source));
+		if (Source = WB_IDyMEM) then -- fuente doble de datos, utilizada únicamente en la instrucción poph
+		    --misma instrucción (mismo id)
+			IdInstIncWrPend <= IDtoWB.id;
+			--SP codificado como ID_SP+1 (igual que en writeback)
+			IdRegIncWrPend  <= std_logic_vector(to_unsigned(ID_SP + 1, IdRegIncWrPend'length));
+		    
+			EnableIncWrPend <= '1';
+			WAIT FOR 1 ns;
+			EnableIncWrPend <= '0';
+			WAIT FOR 1 ns;
+		end if;
+		-----------
+		
 		if (updateCodOp) then
 			IdRegID <= std_logic_vector(to_unsigned(ID_IR, IdRegID'length));
 			SizeRegID <= std_logic_vector(to_unsigned(1, SizeRegID'length));
@@ -322,6 +338,7 @@ begin
 		end if;
 		--IFtoIDLocal <= IFtoID;
 
+		
 		WAIT UNTIL falling_edge(EnableID);
 		Initialize(idAux);
 		IDtoEX.empty <= '0';
@@ -449,39 +466,34 @@ begin
 				    IDtoWB.data.decode(15 downto 0) <= std_logic_vector(to_unsigned(addrAux, 16)); -- coloco en bus de datos para el writeback
 				end if;
 			
-			WHEN POPH =>			    
-						
-				if (StallRAW = '0') then
+			WHEN POPH =>	
+				if (StallRAW = '0') then	
 					IdRegID     <= std_logic_vector(to_unsigned(ID_SP, IdRegID'length)); -- SP
-				    SizeRegID   <= std_logic_vector(to_unsigned(4, SizeRegID'length));   -- tamaño de registro SP de 4 bytes
+					SizeRegID   <= std_logic_vector(to_unsigned(4, SizeRegID'length));   -- tamaño de registro SP de 4 bytes
 				    
 					EnableRegID <= '1';
-				    WAIT FOR 1 ns;
-				    EnableRegID <= '0';
-				    WAIT FOR 1 ns;		
+					WAIT FOR 1 ns;
+					EnableRegID <= '0';
+					WAIT FOR 1 ns;		
 				
 					-- DataRegOutID ahora contiene SP_actual, se lo paso a addrAux
-				    addrAux := to_integer(unsigned(DataRegOutID(15 downto 0)));	
+					addrAux := to_integer(unsigned(DataRegOutID(15 downto 0)));	
 				    
-				    -- configuro acceso a memoria para leer lo que tiene SP (rd)
-				    IDtoMA.mode     <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));
-				    IDtoMA.read     <= '1';
-				    IDtoMA.write    <= '0';
-				    IDtoMA.datasize <= std_logic_vector(to_unsigned(2, IDtoMA.datasize'length));      -- 2 bytes
-				    IDtoMA.address  <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length)); -- leo la dirección que guardé en addrAux (SP_actual)
-							    
-				    -- registro destino, rd
-				    rdAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0))) + 1;
+					-- configuro acceso a memoria para leer lo que tiene SP (rd)
+					IDtoMA.mode     <= std_logic_vector(to_unsigned(MEM_MEM, IDtoMA.mode'length));
+					IDtoMA.read     <= '1';
+					IDtoMA.write    <= '0';
+					IDtoMA.datasize <= std_logic_vector(to_unsigned(2, IDtoMA.datasize'length));      -- 2 bytes
+					IDtoMA.address  <= std_logic_vector(to_unsigned(addrAux, IDtoMA.address'length)); -- leo la dirección que guardé en addrAux (SP_actual)
+					IDtoMA.source   <= std_logic_vector(to_unsigned(WB_IDyMEM, IDtoWB.source'length));-- hago writeback de datos de dos sources, uso WB_MEMyEX			    										       		    
+					-- registro destino, rd
+					rdAux := to_integer(unsigned(IFtoIDLocal.package1(7 downto 0))) + 1;
 				
-				    -- configuro Writeback para escribir el valor poppeado desde MEM en rd
-				    IDtoWB.mode     <= std_logic_vector(to_unsigned(rdAux, IDtoWB.mode'length));
-				    IDtoWB.datasize <= std_logic_vector(to_unsigned(2, IDtoWB.datasize'length));						    			    
-				    IDtoWB.source   <= std_logic_vector(to_unsigned(WB_IDyMEM, IDtoWB.source'length));-- hago writeback de datos de dos sources, uso WB_MEMyEX			    
-							    
-				    -- hago (sp+2) en el campo decode del wb, durante WB se escribe en sp			    
-				    --IDtoWB.data.decode(15 downto 0) <= std_logic_vector(to_unsigned(addrAux + 2, 16));
-				    --IDtoWB.data.decode(31 downto 16) <= (others => '0');	    					  --el resto a cero		
-					IDtoWB.data.decode <= std_logic_vector(to_unsigned(addrAux + 2, 32));  -- 32 bits, zero-extended				
+					-- configuro Writeback para escribir el valor poppeado desde MEM en rd
+					IDtoWB.mode     <= std_logic_vector(to_unsigned(rdAux, IDtoWB.mode'length));
+					IDtoWB.datasize <= std_logic_vector(to_unsigned(2, IDtoWB.datasize'length));						    			    
+					IDtoWB.source   <= std_logic_vector(to_unsigned(WB_IDyMEM, IDtoWB.source'length));-- hago writeback de datos de dos sources, uso WB_MEMyEX			    										       
+					IDtoWB.data.decode <= std_logic_vector(to_unsigned(addrAux + 2, 32));  -- 32 bits, zero-extended																		
 				end if;
 				
 			WHEN LW =>

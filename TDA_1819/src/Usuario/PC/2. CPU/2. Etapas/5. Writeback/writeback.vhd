@@ -80,8 +80,7 @@ architecture WRITEBACK_ARCHITECTURE of writeback is
 	SIGNAL RecInWBAct: writeback_record;
 	SIGNAL RecInWBAux: writeback_record;
 	SIGNAL RecInWBAux2: writeback_record;
-	SIGNAL IdRecWAW: std_logic_vector(7 downto 0);
-
+	SIGNAL IdRecWAW: std_logic_vector(7 downto 0); 
 	
 begin
 	
@@ -250,7 +249,13 @@ begin
 				EnableRegWB <= '1'; 
 				wait for 1 ns; 
 				EnableRegWB <= '0'; 
+				wait for 1 ns;	 
+				
+				IdRegDecWrPend  <= std_logic_vector(to_unsigned(ID_SP + 1, IdRegDecWrPend'length));	--terminé de escribir sp, no hay problema ahora
+				EnableDecWrPend <= '1';  
 				wait for 1 ns;
+				EnableDecWrPend <= '0';  
+				wait for 1 ns;									
 			
 			else									
 				
